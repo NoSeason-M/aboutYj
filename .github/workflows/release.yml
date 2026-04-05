@@ -1,45 +1,65 @@
-name: Tauri 自动打包发布
-# 1. 仅在推送「v开头的版本标签」时触发，避免每次提交代码都打包
+name: Tauri 自动打包发布 (带调试日志)
+# 仅推送v开头的版本标签时触发，避免无效打包
 on:
   push:
     tags:
       - 'v*'
 
-# 2. 彻底解决Node.js 20弃用警告，强制所有Action用Node 24运行
+# 解决Node.js 20弃用警告，强制所有Action用Node 24运行
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  RUST_LOG: debug # 开启Rust调试日志，方便定位错误
 
 jobs:
   build:
     runs-on: windows-latest
+    # 给Actions加读写权限，避免发布失败
+    permissions:
+      contents: write
     steps:
-      - name: 拉取项目代码
+      - name: 拉取完整项目代码
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # 完整拉取，避免标签/版本问题
 
       - name: 安装Node.js（和本地环境对齐）
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
+          cache-dependency-path: package-lock.json # 锁定依赖缓存
 
       - name: 安装Rust编译环境（指定Windows目标平台）
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: x86_64-pc-windows-msvc
+          toolchain: stable
 
-      - name: 安装项目依赖（用npm ci保证100%环境一致）
+      - name: 打印环境版本（调试用，确认环境正常）
+        run: |
+          node -v
+          npm -v
+          rustc -V
+          cargo -V
+          cargo tauri --version
+
+      - name: 安装项目依赖（npm ci保证100%环境一致）
         run: npm ci
+        shell: bash
 
-      - name: 打包Tauri应用（自动签名更新包）
-        run: cargo tauri build
+      - name: 打包Tauri应用（带详细日志+签名）
+        run: cargo tauri build --verbose # --verbose输出完整打包日志
+        shell: bash
         env:
-          # 3. 必须和GitHub Secrets里的密钥名完全一致（UPDATER_KEY）
           TAURI_SIGNER_PRIVATE_KEY: ${{ secrets.UPDATER_KEY }}
+
+      - name: 列出打包产物（确认exe/msi生成成功）
+        run: dir /s /b src-tauri/target/release/bundle
+        shell: cmd
 
       - name: 发布到GitHub Releases
         uses: softprops/action-gh-release@v2
         with:
-          # 仅上传exe/msi安装包，确保自动更新能正确识别
           files: |
             src-tauri/target/release/bundle/**/*.exe
             src-tauri/target/release/bundle/**/*.msi
