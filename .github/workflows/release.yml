@@ -1,11 +1,11 @@
-name: 自动打包发布Tauri应用
-# 🔴 修正触发条件：仅推送「v开头的版本标签」时触发，避免每次提交代码都打包
+name: Tauri 自动打包发布
+# 1. 仅在推送「v开头的版本标签」时触发，避免每次提交代码都打包
 on:
   push:
     tags:
       - 'v*'
 
-# 🔴 解决Node.js 20弃用警告：强制所有Action用Node.js 24运行
+# 2. 彻底解决Node.js 20弃用警告，强制所有Action用Node 24运行
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -16,7 +16,7 @@ jobs:
       - name: 拉取项目代码
         uses: actions/checkout@v4
 
-      - name: 安装Node.js（适配Node 24，保证依赖一致）
+      - name: 安装Node.js（和本地环境对齐）
         uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -27,19 +27,19 @@ jobs:
         with:
           targets: x86_64-pc-windows-msvc
 
-      - name: 安装项目依赖（用npm ci保证构建环境100%一致）
+      - name: 安装项目依赖（用npm ci保证100%环境一致）
         run: npm ci
 
       - name: 打包Tauri应用（自动签名更新包）
         run: cargo tauri build
         env:
-          # 🔴 必须和你GitHub Secrets里创建的密钥名完全一致（UPDATER_KEY）
+          # 3. 必须和GitHub Secrets里的密钥名完全一致（UPDATER_KEY）
           TAURI_SIGNER_PRIVATE_KEY: ${{ secrets.UPDATER_KEY }}
 
       - name: 发布到GitHub Releases
         uses: softprops/action-gh-release@v2
         with:
-          # 仅上传exe/msi安装包，避免冗余文件
+          # 仅上传exe/msi安装包，确保自动更新能正确识别
           files: |
             src-tauri/target/release/bundle/**/*.exe
             src-tauri/target/release/bundle/**/*.msi
