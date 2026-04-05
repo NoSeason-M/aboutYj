@@ -1,11 +1,9 @@
-name: Tauri 自动打包发布 (修复CLI缺失问题)
-# 仅推送v开头的版本标签时触发，避免无效打包
+name: Tauri 自动打包发布 (最终稳定版)
 on:
   push:
     tags:
       - 'v*'
 
-# 解决Node.js 20弃用警告，强制所有Action用Node 24运行
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   RUST_LOG: debug
@@ -34,9 +32,8 @@ jobs:
           targets: x86_64-pc-windows-msvc
           toolchain: stable
 
-      # 🔴 核心修复：全局安装Tauri CLI，让cargo能识别tauri命令
       - name: 安装Tauri CLI工具
-        run: cargo install tauri-cli --version 2.10.1 # 版本必须和你本地tauri版本完全一致！
+        run: cargo install tauri-cli --version 2.10.3
         shell: bash
 
       - name: 打印环境版本（调试用，确认环境正常）
@@ -45,7 +42,7 @@ jobs:
           npm -v
           rustc -V
           cargo -V
-          cargo tauri --version # 现在有CLI了，可正常执行
+          cargo tauri --version
         shell: bash
 
       - name: 安装项目依赖（npm ci保证100%环境一致）
@@ -58,9 +55,10 @@ jobs:
         env:
           TAURI_SIGNER_PRIVATE_KEY: ${{ secrets.UPDATER_KEY }}
 
+      # 🔴 修复后的列出产物步骤（用bash兼容命令）
       - name: 列出打包产物（确认exe/msi生成成功）
-        run: dir /s /b src-tauri/target/release/bundle
-        shell: cmd
+        run: ls -R src-tauri/target/release/bundle
+        shell: bash
 
       - name: 发布到GitHub Releases
         uses: softprops/action-gh-release@v2
