@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import LoginView from '@/views/LoginView.vue'
 import YjBasicView from '@/views/YjBasicView.vue'
 
+
 const routes = [
   {
     path: '/',

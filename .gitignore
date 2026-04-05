@@ -1,5 +1,6 @@
-# Logs
-logs
+# ===================== 通用基础忽略 =====================
+# 日志文件
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -7,86 +8,83 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-
-# 1. 依赖包（绝对不传，几万个文件，超大）
+# 依赖包（包管理器生成，绝对不上传）
 node_modules/
 .pnpm-store/
+yarn-cache/
 
-# 2. 项目打包产物（本地生成，不用传）
+# 打包/构建产物（本地生成，无需上传）
 dist/
 dist-ssr/
 *.local
+tmp/
+temp/
 
-# 3. Tauri 编译文件（巨⼤，自动生成，必须排除）
+# ===================== Vue 项目专属 =====================
+# Vue 自动生成的类型声明（unplugin-auto-import/unplugin-vue-components 生成）
+auto-imports.d.ts
+components.d.ts
+*.d.ts.cache
+vue-tsc.log
+
+# Vue CLI 缓存
+node_modules/.cache/
+.vuepress/dist/
+.nuxt/
+.output/
+
+# ===================== Tauri 项目专属 =====================
+# Tauri 编译产物（体积大，自动生成）
 src-tauri/target/
 src-tauri/gen/
 src-tauri/.cargo/
-src-tauri/Cargo.lock
+src-tauri/Cargo.lock  # 可选：若团队统一环境，可取消注释（建议保留忽略）
+src-tauri/debug/
+src-tauri/release/
 
-# 4. 环境变量 / 私密配置（不能传！）
+# Tauri 打包后的安装包（如 exe/dmg/appimage 等）
+src-tauri/*.exe
+src-tauri/*.msi
+src-tauri/*.dmg
+src-tauri/*.appimage
+src-tauri/*.deb
+src-tauri/*.rpm
+
+# Tauri 签名/证书文件（私密，绝对不上传）
+src-tauri/*.p12
+src-tauri/*.pfx
+src-tauri/*.key
+src-tauri/*.cert
+
+# ===================== 环境/私密配置 =====================
+# 环境变量文件（包含敏感信息）
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+.env.*.local
 
-# 5. 编辑器 / 系统垃圾文件
+# ===================== 编辑器/系统文件 =====================
+# VS Code（保留 extensions.json，排除其他）
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json  # 可选：若团队需统一配置，取消注释
+.vscode/extensions/
+.vscode/.DS_Store
+
+# JetBrains 系列（IDEA/WebStorm 等）
 .idea/
-.vscode/
-*.swp
-*.swo
-.DS_Store
-Thumbs.db
+*.iml
+*.iws
+*.ipr
 
-# 6. 日志 / 缓存
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-
-# 7. 其他临时文件
-*.log
-tmp/
-temp/
+# 系统垃圾文件
+.DS_Store       # Mac
+Thumbs.db       # Windows
+*.swp           # Vim 临时文件
+*.swo           # Vim 临时文件
+*.suo           # Visual Studio
+*.ntvs*
+*.njsproj
+*.sln

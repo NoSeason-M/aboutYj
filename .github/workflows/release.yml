@@ -1,0 +1,28 @@
+name: 自动打包发布
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 安装Node
+        uses: actions/setup-node@v4
+        with: {node-version: 20}
+      - name: 安装Rust
+        uses: dtolnay/rust-toolchain@stable
+      - name: 安装依赖
+        run: npm install
+      - name: 打包Tauri
+        run: cargo tauri build
+        env:
+          TAURI_SIGNER_PRIVATE_KEY: ${{ secrets.UPDATER_KEY }}
+      - name: 发布到GitHub Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          files: src-tauri/target/release/bundle/**/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
