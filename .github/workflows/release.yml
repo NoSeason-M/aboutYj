@@ -33,7 +33,7 @@ jobs:
           toolchain: stable
 
       - name: 安装Tauri CLI工具
-        run: cargo install tauri-cli --version 2.10.3
+        run: cargo install tauri-cli --version 2.10.1
         shell: bash
 
       - name: 打印环境版本（调试用，确认环境正常）
