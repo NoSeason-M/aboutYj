@@ -1,7 +1,7 @@
 <template>
   <div class="login-page">
     <div class="login-container">
-      <h1 class="login-title">专属记录登录</h1>
+      <h1 class="login-title">aboutYj</h1>
       <div class="input-group">
         <label class="input-label">账号</label>
         <input
